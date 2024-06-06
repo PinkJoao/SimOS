@@ -1,3 +1,3 @@
-# simos
+# SimOS
 
-A new Flutter project.
+A flutter/dart software to upload reports.
