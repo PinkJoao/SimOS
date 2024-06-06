@@ -1,0 +1,50 @@
+name: SimOS
+description: "Símic android app for reveiving and storing reports"
+publish_to: 'none'
+version: 4.1.0
+
+environment:
+  sdk: '>=3.4.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.1
+  path: ^1.9.0
+  intl: ^0.19.0
+  excel: ^4.0.2
+  camera: ^0.11.0
+  aad_oauth: ^1.0.1
+  file_picker: ^8.0.3
+  photo_view: ^0.14.0
+  image_picker: ^1.0.7
+  path_provider: ^2.1.2
+  carousel_slider: ^4.2.1
+  cupertino_icons: ^1.0.6
+  align_positioned: ^4.0.1
+  time_range_picker: ^2.2.0
+  shared_preferences: ^2.2.2
+  permission_handler: ^11.3.0
+  flutter_launcher_icons: ^0.13.1
+  internet_connection_checker: ^1.0.0+1
+  lecle_downloads_path_provider: ^0.0.2+8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/simOSLogo.png
+    - assets/images/simicLogo.png
+    - assets/images/simicLogoTitle.png
+    - assets/images/simOSWallpaper.png
+    - assets/images/simOSLogoEXT.png
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/simOSLogo.png"
