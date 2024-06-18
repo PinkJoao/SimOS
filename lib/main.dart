@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'Símic | Tree',
+      title: 'Símic | SimOS',
       theme: ThemeData(
         useMaterial3: false,
         brightness: Brightness.dark,

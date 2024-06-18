@@ -904,22 +904,27 @@ class CameraPageState extends State<CameraPage> {
   Future<void> selectFromGallery() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
+        allowMultiple: false,
+        allowCompression: false,
+        type: FileType.custom,
+        allowedExtensions: ['png', 'jpg', 'jpeg']
       );
 
       if (result != null) {
         PlatformFile pickedFile = result.files.first;
         Uint8List fileData;
+        File tempFile = File(pickedFile.path!);
+        
 
         if (pickedFile.bytes != null) {
           fileData = pickedFile.bytes!;
         } else {
-          File file = File(pickedFile.path!);
-          fileData = await file.readAsBytes();
+          fileData = await tempFile.readAsBytes();
         }
 
         setState(() {
           fileBytes = fileData;
+          file = tempFile;
         });
       } else {
         log('No file selected');

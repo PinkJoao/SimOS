@@ -914,9 +914,13 @@ class HomePageState extends State<HomePage> {
       log('Error adding photo: $e');
     }
 
+    log(image.toString());
+
     if(image == null){
       return;
     }
+
+    log(image.path);
       
     setState(() {
       photoFiles.insert(0, image!);
