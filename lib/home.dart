@@ -60,13 +60,12 @@ class HomePageState extends State<HomePage> {
 
   List<File> photoFiles = [];
   List<Widget> photoWidgets = [];
-  List<List> pendingActivities = [];
-  List<Widget> pendingWidgets = [];
-  List<Widget> drawerWidgets = [];
+
+  List<List<File>> pendingFileLists = [];
+  List<List<File>> sentFileLists = [];
   List<File> selectedFiles = [];
+
   List<String> logList = [];
-  List sentActivities = [];
-  List<Widget> sentActivityWidgets = [];
   List<String> logHistory = [];
 
   bool logSended = false;
@@ -146,19 +145,24 @@ class HomePageState extends State<HomePage> {
                                         child: GestureDetector(
                                           child: Image.asset('assets/images/simicLogo.png'),
                                           onLongPress: () {
-                                            setState(() {
-                                              adminTrigger1 = !adminTrigger1;
+                                            HapticFeedback.mediumImpact();
+                                            if(mounted){
+                                              setState(() {
+                                                adminTrigger1 = !adminTrigger1;
 
-                                              if(adminTrigger1 && adminTrigger2){
-                                                adminMode = true;
-                                                uploadfolder = testFolder;
-                                                updateIDs();
-                                              }else{
-                                                adminMode = false;
-                                                uploadfolder = oneDriveFolder;
-                                                updateIDs();
-                                              }
-                                            });
+                                                if(adminTrigger1 && adminTrigger2){
+                                                  adminMode = true;
+                                                  uploadfolder = testFolder;
+                                                  showSnackbar(context, 'Admin mode on');
+                                                  updateIDs();
+                                                }else{
+                                                  adminMode = false;
+                                                  uploadfolder = oneDriveFolder;
+                                                  updateIDs();
+                                                }
+                                              });
+                                            }
+                                            HapticFeedback.vibrate();
                                           },
                                         ),
                                       ),
@@ -177,7 +181,38 @@ class HomePageState extends State<HomePage> {
                                   )
                                 ),
                                 const SizedBox(),
-                              ] + pendingWidgets,
+
+                                for(List<File> fileList in pendingFileLists)
+                                  SelectButton(
+                                    valueNotifier: ValueNotifier(false), 
+                                    title: Text(fileList.first.path.split('/').last.split('_').first),
+                                    child: CarouselSlider(
+                                      items: [for(File file in fileList)
+                                        GestureDetector(
+                                          onTap: () { showInFullScreen(file.path, context); },
+                                          child: Hero(
+                                            tag: file.path,
+                                            child: Image.file(file),
+                                          ),
+                                        )
+                                      ],
+                                      options: CarouselOptions(
+                                        height: getTotalHeight(context) / 4,
+                                        viewportFraction: 1,
+                                        enableInfiniteScroll: false,
+                                        enlargeCenterPage: true,
+                                      ),
+                                    ),
+                                    onCheck: (value){
+                                      selectedFiles.addAll(fileList);
+                                      log(selectedFiles.toString());
+                                    },
+                                    onUncheck: (value){
+                                      selectedFiles.removeWhere((element) => fileList.contains(element));
+                                      log(selectedFiles.toString());
+                                    },
+                                  )
+                              ] //+ pendingWidgets,
                             ),
                           ),
                         ],
@@ -214,6 +249,7 @@ class HomePageState extends State<HomePage> {
                             touch: Touch.inside,
                             moveByChildHeight: -2,
                             child: FloatingActionButton(
+                              heroTag: UniqueKey().toString(),
                               backgroundColor: Colors.redAccent,
                               onPressed: drawerLoading
                                 ? null
@@ -227,6 +263,7 @@ class HomePageState extends State<HomePage> {
                             touch: Touch.inside,
                             moveByChildHeight: -0.5,
                             child: FloatingActionButton(
+                              heroTag: UniqueKey().toString(),
                               backgroundColor: drawerLoading || offlineMode
                               ? Colors.grey
                               : Colors.greenAccent,
@@ -312,19 +349,24 @@ class HomePageState extends State<HomePage> {
                                       child: GestureDetector(
                                         child: Image.asset('assets/images/simicLogo.png'),
                                         onLongPress: () {
-                                          setState(() {
-                                            adminTrigger2 = !adminTrigger2;
+                                          HapticFeedback.mediumImpact();
+                                          if(mounted){
+                                            setState(() {
+                                              adminTrigger2 = !adminTrigger2;
 
-                                            if(adminTrigger1 && adminTrigger2){
-                                              adminMode = true;
-                                              uploadfolder = testFolder;
-                                              updateIDs();
-                                            }else{
-                                              adminMode = false;
-                                              uploadfolder = oneDriveFolder;
-                                              updateIDs();
-                                            }
-                                          });
+                                              if(adminTrigger1 && adminTrigger2){
+                                                adminMode = true;
+                                                uploadfolder = testFolder;
+                                                showSnackbar(context, 'Admin mode on');
+                                                updateIDs();
+                                              }else{
+                                                adminMode = false;
+                                                uploadfolder = oneDriveFolder;
+                                                updateIDs();
+                                              }
+                                            });
+                                          }
+                                          HapticFeedback.vibrate();
                                         },
                                       ),
                                     ),
@@ -342,7 +384,30 @@ class HomePageState extends State<HomePage> {
                                 )
                               ),
                               const SizedBox(),
-                            ] + sentActivityWidgets,
+
+                              for(List<File> fileList in sentFileLists)
+                                ListTile(
+                                  title: Text(fileList.first.path.split('/').last.split('_').first),
+                                  subtitle: CarouselSlider(
+                                    items: [for(File file in fileList) 
+                                      GestureDetector(
+                                        onTap: () { showInFullScreen(file.path, context); },
+                                        child: Hero(
+                                          tag: file.path,
+                                          child: Image.file(file),
+                                        ),
+                                      )
+                                    ],
+                                    options: CarouselOptions(
+                                      height: getTotalHeight(context) / 4,
+                                      viewportFraction: 1,
+                                      enableInfiniteScroll: false,
+                                      enlargeCenterPage: true,
+                                    ),
+                                  ),
+                                )
+                                // image slider
+                            ]// + sentActivityWidgets,
                           ),
                         ),
                       ],
@@ -599,8 +664,7 @@ class HomePageState extends State<HomePage> {
     lastLogDate = preferences.getString('lastLogDate');
     logHistory = preferences.getStringList('logHistory') ?? logHistory;
 
-    await getPendingActivities();
-    await getSentActivities();
+    await getStoredPhotos();
 
     if (widget.token != null) {
       OneDriveIDs? ids = await getOneDriveIDs(widget.token, uploadfolder);
@@ -622,6 +686,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Future onDrawerOpened() async {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    log(client.toString());
     if (loading) {
       return null;
     }
@@ -633,169 +698,60 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  Future getSentActivities() async{////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    List<File>? sentPhotoFiles = await getDirectoryFiles(storageFolder, downloadDir, 'jpg');
-    if (sentPhotoFiles == null) {
-      return null;
+  Future getStoredPhotos() async {
+    List<File> pendingFiles = await getDirectoryFiles(pendingFolder, downloadDir) ?? [];
+    List<File> sentFiles = await getDirectoryFiles(storageFolder, downloadDir) ?? [];
+
+    if(pendingFiles.isNotEmpty){
+      pendingFileLists.clear();
+    }
+    if(sentFiles.isNotEmpty){
+      sentFileLists.clear();
     }
 
-    sentActivities.clear();
+    
+    List<File> auxList = [];
 
-    List<File> currentSentActivity = [];
-
-    for (File file in sentPhotoFiles) {
-      String fileName = file.path.split('/').last.substring(0, file.path.split('/').last.length - 6);
-      if (currentSentActivity.isEmpty) {
-        currentSentActivity.add(file);
-      } else {
-        if (currentSentActivity.first.path.contains(fileName)) {
-          currentSentActivity.add(file);
-        } else {
-          sentActivities.add(List<File>.from(currentSentActivity));
-          currentSentActivity.clear();
-          currentSentActivity.add(file);
-        }
+    for(File file in pendingFiles){
+      String fileName = file.path.split('/').last.split('.').first;
+      if(auxList.isEmpty || !fileName.endsWith('_0')){
+        auxList.add(file);
+      }else{
+        pendingFileLists.add(List.from(auxList));
+        auxList.clear();
+        auxList.add(file);
       }
     }
-    if (currentSentActivity.isNotEmpty) {
-      sentActivities.add(List<File>.from(currentSentActivity));
+
+    if(auxList.isNotEmpty){
+      pendingFileLists.add(List.from(auxList));
+      auxList.clear();
     }
 
-    await getSentWidgets();
-  }
-
-  Future getPendingActivities() async {////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    List<File>? pendingPhotoFiles = await getDirectoryFiles(pendingFolder, downloadDir, 'jpg');
-    if (pendingPhotoFiles == null) {
-      return null;
-    }
-
-    pendingActivities.clear();
-    selectedFiles.clear();
-
-    List<File> currentActivity = [];
-
-    for (File file in pendingPhotoFiles) {
-      String fileName = file.path.split('/').last.substring(0, file.path.split('/').last.length - 6);
-      if (currentActivity.isEmpty) {
-        currentActivity.add(file);
-      } else {
-        if (currentActivity.first.path.contains(fileName)) {
-          currentActivity.add(file);
-        } else {
-          pendingActivities.add([List<File>.from(currentActivity), false]);
-          currentActivity.clear();
-          currentActivity.add(file);
-        }
+    for(File file in sentFiles){
+      String fileName = file.path.split('/').last.split('.').first;
+      if(auxList.isEmpty || !fileName.endsWith('_0')){
+        auxList.add(file);
+      }else{
+        sentFileLists.add(List.from(auxList));
+        auxList.clear();
+        auxList.add(file);
       }
     }
-    if (currentActivity.isNotEmpty) {
-      pendingActivities.add([List<File>.from(currentActivity), false]);
+
+    if(auxList.isNotEmpty){
+      sentFileLists.add(List.from(auxList));
+      auxList.clear();
     }
 
-    await getPendingWidgets();
-  }
+    pendingFileLists.sort((a,b) => b.first.path.split('/').last.split('-').last.compareTo(a.first.path.split('/').last.split('-').last));
+    sentFileLists.sort((a,b) => b.first.path.split('/').last.split('-').last.compareTo(a.first.path.split('/').last.split('-').last));
 
-  Future getSentWidgets() async {
-    sentActivityWidgets.clear();
-
-    for (List files in sentActivities) {
-      String activityString = files[0].path.substring(0, files[0].path.length - 6).split('/').last;
-      List<Widget> carouselWidgets = [];
-      for (File file in files) {
-        carouselWidgets.add(
-          GestureDetector(
-            onTap: () { showInFullScreen(file.path, context); },
-            child: Hero(
-              tag: file.path,
-              child: Image.file(file),
-            ),
-          )
-        );
-      }
-
-      CarouselSlider activityCarousel = CarouselSlider(
-        items: carouselWidgets,
-        options: CarouselOptions(
-          height: getTotalHeight(context) / 4,
-          viewportFraction: 1,
-          enableInfiniteScroll: false,
-          enlargeCenterPage: true,
-        ),
-      );
-
-      Widget sentActivityWidget = Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
-            child: Text(activityString,),
-          ),
-          
-          activityCarousel,
-        ],
-      );
-
-      sentActivityWidgets.add(sentActivityWidget);
+    if(mounted){
+      setState(() {});
     }
-
-    setState(() {});
   }
-
-  Future getPendingWidgets() async {///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    pendingWidgets.clear();
-
-    for (List activityTuple in pendingActivities) {
-      List files = activityTuple[0];
-      String activityString = files[0].path.substring(0, files[0].path.length - 6).split('/').last;
-      List<Widget> carouselWidgets = [];
-      for (File file in files) {
-        carouselWidgets.add(
-          GestureDetector(
-            onTap: () { showInFullScreen(file.path, context); },
-            child: Hero(
-              tag: file.path,
-              child: Image.file(file),
-            ),
-          )
-        );
-      }
-
-      CarouselSlider activityCarousel = CarouselSlider(
-        items: carouselWidgets,
-        options: CarouselOptions(
-          height: getTotalHeight(context) / 4,
-          viewportFraction: 1,
-          enableInfiniteScroll: false,
-          enlargeCenterPage: true,
-        ),
-      );
-
-      Widget activityWidget = Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          CheckboxListTile(
-            title: Text(activityString),
-            activeColor: Colors.greenAccent,
-            checkColor: Colors.grey[900],
-            value: activityTuple[1],
-            onChanged: (bool? value) async {
-              setState(() {
-                activityTuple[1] = value;
-              });
-              selectedFileUpdate(value, activityString);
-              await getPendingWidgets();
-            },
-          ),
-          activityCarousel,
-        ],
-      );
-      pendingWidgets.add(activityWidget);
-    }
-
-    setState(() {});
-  }
-
+  
   String getFileName(String fileExtension, [int? index]) {/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     String executionDateString = executionDate != null
     ? DateFormat('yyyyMMdd').format(executionDate!)
@@ -850,8 +806,7 @@ class HomePageState extends State<HomePage> {
       photoWidgets.remove(removeTuple[1]);
     }
 
-    await getPendingActivities();
-    await getSentActivities();
+    await getStoredPhotos();
 
     setLoading(false);
 
@@ -968,37 +923,6 @@ class HomePageState extends State<HomePage> {
     });
   }
 
-  Future selectedFileUpdate(bool? check, String activityString) async {////////////////////////////////////////////////////////////////////////////////////////////////////
-    if (check != true) {
-      selectedFiles.removeWhere((element) => element.path.contains(activityString));
-      return null;
-    }
-
-    List<File>? pendingFiles = await getDirectoryFiles(pendingFolder, downloadDir);
-    if (pendingFiles == null) {
-      return null;
-    }
-
-    for (File file in pendingFiles) {
-      if (file.path.contains(activityString)) {
-        if (selectedFiles.isEmpty) {
-          selectedFiles.add(file);
-        } else {
-          bool check2 = false;
-          for (File file2 in selectedFiles) {
-            if (file2.path == file.path) {
-              check2 = true;
-              break;
-            }
-          }
-          if (check2 == false) {
-            selectedFiles.add(file);
-          }
-        }
-      }
-    }
-  }
-
   Future uploadSelected() async {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     if (loading == true || drawerLoading == true) {
       return null;
@@ -1023,8 +947,9 @@ class HomePageState extends State<HomePage> {
       }
     }
 
-    await getPendingActivities();
-    await getSentActivities();
+    await getStoredPhotos();
+    //await getPendingActivities();
+    //await getSentActivities();
 
     await uploadLog();
 
@@ -1109,8 +1034,7 @@ class HomePageState extends State<HomePage> {
       await moveFile(fileName, pendingFolder, trashFolder, downloadDir);
       updateLogHistory('Arquivo [$fileName] foi excluído');
     }
-
-    await getPendingActivities();
+    await getStoredPhotos();
   }
 
   void setClient([String? newClient]){

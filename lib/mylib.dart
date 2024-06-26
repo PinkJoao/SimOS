@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:developer';
 import 'dart:math' as math;
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:camera/camera.dart';
 import 'dart:convert' show json, utf8;
@@ -512,88 +513,6 @@ class SafeMenuButtonState extends State<SafeMenuButton> {
   }
 }
 
-
-class SmartCheckboxListTile extends StatefulWidget {
-  final bool initialValue;
-  final ValueChanged<bool?>? onChanged;
-  final Widget title;
-  final Widget? subtitle;
-  final bool isThreeLine;
-  final bool dense;
-  final Widget? secondary;
-  final bool selected;
-  final Color? activeColor;
-  final Color? checkColor;
-  final ListTileControlAffinity controlAffinity;
-  final bool autofocus;
-  final EdgeInsetsGeometry? contentPadding;
-  final ShapeBorder? shape;
-  final Color? tileColor;
-  final Color? selectedTileColor;
-
-  SmartCheckboxListTile({
-    Key? key,
-    this.initialValue = false,
-    this.onChanged,
-    required this.title,
-    this.subtitle,
-    this.isThreeLine = false,
-    this.dense = false,
-    this.secondary,
-    this.selected = false,
-    this.activeColor,
-    this.checkColor,
-    this.controlAffinity = ListTileControlAffinity.platform,
-    this.autofocus = false,
-    this.contentPadding,
-    this.shape,
-    this.tileColor,
-    this.selectedTileColor,
-  }) : super(key: key);
-
-  @override
-  _SmartCheckboxListTileState createState() => _SmartCheckboxListTileState();
-}
-
-class _SmartCheckboxListTileState extends State<SmartCheckboxListTile> {
-  bool check = false;
-
-  @override
-  void initState() {
-    super.initState();
-    check = widget.initialValue;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CheckboxListTile(
-      value: check,
-      onChanged: (bool? value) {
-        setState(() {
-          check = value ?? false;
-        });
-        if (widget.onChanged != null) {
-          widget.onChanged!(value);
-        }
-      },
-      title: widget.title,
-      subtitle: widget.subtitle,
-      isThreeLine: widget.isThreeLine,
-      dense: widget.dense,
-      secondary: widget.secondary,
-      selected: widget.selected,
-      activeColor: widget.activeColor,
-      checkColor: widget.checkColor,
-      controlAffinity: widget.controlAffinity,
-      autofocus: widget.autofocus,
-      contentPadding: widget.contentPadding,
-      shape: widget.shape,
-      tileColor: widget.tileColor,
-      selectedTileColor: widget.selectedTileColor,
-    );
-  }
-}
-
 String formatTimeOfDay(TimeOfDay timeOfDay) {
   //return 0925 for 9h25m
   return '${timeOfDay.hour.toString().padLeft(2, '0')}${timeOfDay.minute.toString().padLeft(2, '0')}';
@@ -904,27 +823,22 @@ class CameraPageState extends State<CameraPage> {
   Future<void> selectFromGallery() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
-        allowCompression: false,
-        type: FileType.custom,
-        allowedExtensions: ['png', 'jpg', 'jpeg']
+        type: FileType.image,
       );
 
       if (result != null) {
         PlatformFile pickedFile = result.files.first;
         Uint8List fileData;
-        File tempFile = File(pickedFile.path!);
-        
 
         if (pickedFile.bytes != null) {
           fileData = pickedFile.bytes!;
         } else {
-          fileData = await tempFile.readAsBytes();
+          File file = File(pickedFile.path!);
+          fileData = await file.readAsBytes();
         }
 
         setState(() {
           fileBytes = fileData;
-          file = tempFile;
         });
       } else {
         log('No file selected');
@@ -1002,4 +916,489 @@ Future<bool> takePhotoAndStore(BuildContext context, String prefix, String folde
   }
 
   return false;
+}
+
+/*
+class SmartCheckboxListTile extends StatefulWidget {
+  final bool initialValue;
+  final ValueChanged<bool?>? onChanged;
+  final Widget title;
+  final Widget? subtitle;
+  final bool isThreeLine;
+  final bool dense;
+  final Widget? secondary;
+  final bool selected;
+  final Color? activeColor;
+  final Color? checkColor;
+  final ListTileControlAffinity controlAffinity;
+  final bool autofocus;
+  final EdgeInsetsGeometry? contentPadding;
+  final ShapeBorder? shape;
+  final Color? tileColor;
+  final Color? selectedTileColor;
+
+  SmartCheckboxListTile({
+    Key? key,
+    this.initialValue = false,
+    this.onChanged,
+    required this.title,
+    this.subtitle,
+    this.isThreeLine = false,
+    this.dense = false,
+    this.secondary,
+    this.selected = false,
+    this.activeColor,
+    this.checkColor,
+    this.controlAffinity = ListTileControlAffinity.platform,
+    this.autofocus = false,
+    this.contentPadding,
+    this.shape,
+    this.tileColor,
+    this.selectedTileColor,
+  }) : super(key: key);
+
+  @override
+  _SmartCheckboxListTileState createState() => _SmartCheckboxListTileState();
+}
+
+class _SmartCheckboxListTileState extends State<SmartCheckboxListTile> {
+  bool check = false;
+
+  @override
+  void initState() {
+    super.initState();
+    check = widget.initialValue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CheckboxListTile(
+      value: check,
+      onChanged: (bool? value) {
+        setState(() {
+          check = value ?? false;
+        });
+        if (widget.onChanged != null) {
+          widget.onChanged!(value);
+        }
+      },
+      title: widget.title,
+      subtitle: widget.subtitle,
+      isThreeLine: widget.isThreeLine,
+      dense: widget.dense,
+      secondary: widget.secondary,
+      selected: widget.selected,
+      activeColor: widget.activeColor,
+      checkColor: widget.checkColor,
+      controlAffinity: widget.controlAffinity,
+      autofocus: widget.autofocus,
+      contentPadding: widget.contentPadding,
+      shape: widget.shape,
+      tileColor: widget.tileColor,
+      selectedTileColor: widget.selectedTileColor,
+    );
+  }
+}*/
+
+
+class CheckList extends StatefulWidget {
+  final List<String>? entries;
+  final ValueChanged<Map<String, bool>>? onChanged;
+  final ValueChanged<String>? onItemChecked;
+  final ValueChanged<String>? onItemUnchecked;
+  final bool singleChoice;
+  final List<String?> selectedItems;
+  final Widget? title;
+  final Widget? subtitle;
+  final Color? activeColor;
+  final Color? checkColor;
+  final Icon? checkIcon;
+  final Color? tileColor;
+  final Color? selectedTileColor;
+  final ShapeBorder? checkBoxShape;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? contentPadding;
+
+  CheckList({
+    Key? key,
+    required this.entries,
+    this.onChanged,
+    this.onItemChecked,
+    this.onItemUnchecked,
+    this.singleChoice = false,
+    this.selectedItems = const [],
+    this.title,
+    this.subtitle,
+    this.activeColor,
+    this.checkColor,
+    this.checkIcon,
+    this.tileColor,
+    this.selectedTileColor,
+    this.checkBoxShape,
+    this.padding,
+    this.contentPadding,
+  }) : super(key: key);
+
+  @override
+  _CheckListState createState() => _CheckListState();
+}
+
+class _CheckListState extends State<CheckList> {
+  late Map<String, ValueNotifier<bool>> entriesNotifiers;
+
+  @override
+  void initState() {
+    super.initState();
+    entriesNotifiers = {
+      for (String key in widget.entries!)
+        key: ValueNotifier(widget.selectedItems.contains(key)),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        if(widget.title != null || widget.subtitle != null)
+          ListTile(
+            title: widget.title,
+            subtitle: widget.subtitle,
+          ),
+
+        for (String key in entriesNotifiers.keys)
+          if (widget.singleChoice)
+            SelectButton(
+              title: Text(key),
+              valueNotifier: entriesNotifiers[key]!,
+              checkIcon: CupertinoIcons.circle_fill,
+              checkBoxIcon: CupertinoIcons.circle,
+              checkBoxColor: null,
+              unCheckBoxIcon: CupertinoIcons.circle,
+              tapOutside: true,
+              onValueChanged: (value) {
+                if (value) {
+                  for (String k in entriesNotifiers.keys) {
+                    if (k != key) {
+                      entriesNotifiers[k]!.value = false;
+                    }
+                  }
+                  if(widget.onItemChecked != null){
+                    widget.onItemChecked!(key);
+                  }
+                }else if(widget.onItemUnchecked != null && value != true){
+                  widget.onItemUnchecked!(key);
+                }
+                if (widget.onChanged != null) {
+                  widget.onChanged!(
+                    entriesNotifiers.map((k, v) => MapEntry(k, v.value)),
+                  );
+                }
+              },
+            )
+          else
+            SelectButton(
+              title: Text(key),
+              valueNotifier: entriesNotifiers[key]!,
+              tapOutside: true,
+              onValueChanged: (value) {
+                if (widget.onChanged != null) {
+                  widget.onChanged!(
+                    entriesNotifiers.map((k, v) => MapEntry(k, v.value)),
+                  );
+                }
+                if(widget.onItemChecked != null && value == true){
+                  widget.onItemChecked!(key);
+                }
+                if(widget.onItemUnchecked != null && value != true){
+                  widget.onItemUnchecked!(key);
+                }
+              },
+            ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    for (var notifier in entriesNotifiers.values) {
+      notifier.dispose();
+    }
+    super.dispose();
+  }
+}
+
+class SelectButton extends StatefulWidget {
+  final ValueNotifier<bool> valueNotifier;
+  final Text title;
+  final MainAxisAlignment alignment;
+  final VerticalDirection verticalDirection;
+
+  final IconData? checkIcon;
+  final Color? checkColor;
+  final double? checkIconSize;
+
+  final IconData? unCheckIcon;
+  final Color? unCheckColor;
+  final double? unCheckIconSize;
+
+  final IconData? checkBoxIcon;
+  final Color? checkBoxColor;
+  final double? checkBoxIconSize;
+
+  final IconData? unCheckBoxIcon;
+  final Color? unCheckBoxColor;
+  final double? unCheckBoxIconSize;
+
+  final Widget? prefix;
+  final EdgeInsetsGeometry contentPadding;
+  final BoxShape boxShape;
+  final Color textColor;
+  final Color selectedTextColor;
+  final Color tileColor;
+  final Color selectedTileColor;
+  final bool tapOutside;
+
+  final ValueChanged<bool>? onCheck;
+  final ValueChanged<bool>? onUncheck;
+  final ValueChanged<bool>? onValueChanged;
+
+  final Widget? child;
+
+  SelectButton({
+    Key? key,
+    required this.valueNotifier,
+    required this.title,
+    this.alignment = MainAxisAlignment.spaceBetween,
+    this.verticalDirection = VerticalDirection.down,
+
+    this.checkIcon = Icons.check,
+    this.checkColor,
+    this.checkIconSize = 15,
+
+    this.unCheckIcon,
+    this.unCheckColor,
+    this.unCheckIconSize,
+
+    this.checkBoxIcon = CupertinoIcons.square_fill,
+    this.checkBoxColor = Colors.lightBlueAccent,
+    this.checkBoxIconSize,
+
+    this.unCheckBoxIcon = CupertinoIcons.square,
+    this.unCheckBoxColor,
+    this.unCheckBoxIconSize,
+
+    this.prefix,
+    this.contentPadding = const EdgeInsets.all(10),
+    this.boxShape = BoxShape.rectangle,
+    this.textColor = Colors.white,
+    this.selectedTextColor = Colors.white,
+    this.tileColor = Colors.transparent,
+    this.selectedTileColor = Colors.transparent,
+    this.tapOutside = false,
+
+    this.onCheck,
+    this.onUncheck,
+    this.onValueChanged,
+
+    this.child,
+  }) : super(key: key);
+
+  @override
+  _SelectButtonState createState() => _SelectButtonState();
+}
+
+class _SelectButtonState extends State<SelectButton> {
+  bool check = false;
+  bool selected = false;
+  final FocusNode focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    check = widget.valueNotifier.value;
+
+    widget.valueNotifier.addListener(() {
+      if(mounted){
+        setState(() {
+          check = widget.valueNotifier.value;
+        });
+      }else{
+        check = widget.valueNotifier.value;
+      }
+    });
+
+    focusNode.addListener(() {
+      if (!focusNode.hasFocus) {
+        setState(() {
+          selected = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.valueNotifier.removeListener(() {});
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: widget.prefix,
+      title: widget.title,
+      subtitle: widget.child,
+      trailing: IconButton(
+        padding: EdgeInsets.zero,
+        onPressed: () {
+          updateCheck(!check);
+        },
+        icon: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (!check)
+              Icon(
+                widget.unCheckBoxIcon,
+                color: widget.unCheckBoxColor,
+                size: widget.unCheckBoxIconSize,
+              ),
+            if (check)
+              Icon(
+                widget.checkBoxIcon,
+                color: widget.checkBoxColor,
+                size: widget.checkBoxIconSize,
+              ),
+            if (!check && widget.unCheckIcon != null)
+              Icon(
+                widget.unCheckIcon,
+                color: widget.unCheckColor,
+                size: widget.unCheckIconSize,
+              ),
+            if (check)
+              Icon(
+                widget.checkIcon,
+                color: widget.checkColor,
+                size: widget.checkIconSize,
+              ),
+          ],
+        ),
+      ),
+      selectedColor: widget.selectedTextColor,
+      textColor: widget.textColor,
+      contentPadding: widget.contentPadding,
+      onTap: () {
+        if (widget.tapOutside) {
+          updateCheck(!check);
+        } else if(mounted) {
+          setState(() {
+            selected = true;
+          });
+          focusNode.requestFocus();
+        }
+      },
+      selected: selected,
+      focusNode: focusNode,
+      tileColor: widget.tileColor,
+      selectedTileColor: widget.selectedTileColor,
+      enableFeedback: true,
+      //minVerticalPadding:,
+      //minLeadingWidth:,
+      //minTileHeight:,
+      //titleAlignment:,
+      
+    );
+    
+    /*Focus(
+      focusNode: focusNode,
+      child: GestureDetector(
+        onTap: () {
+          if (widget.tapOutside) {
+            updateCheck(!check);
+          } else {
+            setState(() {
+              selected = true;
+            });
+            focusNode.requestFocus();
+          }
+        },
+        child: Container(
+          color: selected ? widget.selectedTileColor : widget.tileColor,
+          padding: widget.contentPadding,
+          child: Column(
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: widget.alignment,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                verticalDirection: widget.verticalDirection,
+                children: [
+                  if (widget.prefix != null) widget.prefix!,
+
+                  widget.title,
+                  
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      updateCheck(!check);
+                    },
+                    icon: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (!check)
+                          Icon(
+                            widget.unCheckBoxIcon,
+                            color: widget.unCheckBoxColor,
+                            size: widget.unCheckBoxIconSize,
+                          ),
+                        if (check)
+                          Icon(
+                            widget.checkBoxIcon,
+                            color: widget.checkBoxColor,
+                            size: widget.checkBoxIconSize,
+                          ),
+                        if (!check && widget.unCheckIcon != null)
+                          Icon(
+                            widget.unCheckIcon,
+                            color: widget.unCheckColor,
+                            size: widget.unCheckIconSize,
+                          ),
+                        if (check)
+                          Icon(
+                            widget.checkIcon,
+                            color: widget.checkColor,
+                            size: widget.checkIconSize,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (widget.child != null) widget.child!,
+            ],
+          ),
+        ),
+      ),
+    );*/
+  }
+
+  void updateCheck(bool value) {
+    if(mounted){
+      setState(() {
+        check = value;
+        selected = true;
+      });
+    }
+    widget.valueNotifier.value = value;
+    focusNode.requestFocus();
+    if (widget.onValueChanged != null) {
+      widget.onValueChanged!(value);
+    }
+    if (value == true && widget.onCheck != null) {
+      widget.onCheck!(value);
+    }
+    if (value == false && widget.onUncheck != null) {
+      widget.onUncheck!(value);
+    }
+  }
 }
