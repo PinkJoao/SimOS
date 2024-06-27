@@ -385,7 +385,7 @@ class HomePageState extends State<HomePage> {
                               ),
                               const SizedBox(),
 
-                              for(List<File> fileList in sentFileLists)
+                              for(List<File> fileList in sentFileLists.sublist(0,50))
                                 ListTile(
                                   title: Text(fileList.first.path.split('/').last.split('_').first),
                                   subtitle: CarouselSlider(
@@ -630,7 +630,14 @@ class HomePageState extends State<HomePage> {
 
               ElevatedButton(
                 onPressed: !loading && (photoFiles.isNotEmpty && photoWidgets.isNotEmpty) && orderNumberText != null && orderNumberText!.length == 8 && (endTime != null && startTime != null)
-                ? () async { await storeReport(); }
+                ? () async {
+                  if(pendingFileLists.length < 50){
+                    await storeReport();
+                  }else{
+                    showSnackbar(context, '');
+                  }
+                  
+                }
                 : null,
                 child: const Text('Guardar atividade')
               ),
@@ -686,7 +693,6 @@ class HomePageState extends State<HomePage> {
   }
 
   Future onDrawerOpened() async {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    log(client.toString());
     if (loading) {
       return null;
     }
@@ -701,14 +707,6 @@ class HomePageState extends State<HomePage> {
   Future getStoredPhotos() async {
     List<File> pendingFiles = await getDirectoryFiles(pendingFolder, downloadDir) ?? [];
     List<File> sentFiles = await getDirectoryFiles(storageFolder, downloadDir) ?? [];
-
-    if(pendingFiles.isNotEmpty){
-      pendingFileLists.clear();
-    }
-    if(sentFiles.isNotEmpty){
-      sentFileLists.clear();
-    }
-
     
     List<File> auxList = [];
 
@@ -1068,7 +1066,7 @@ class HomePageState extends State<HomePage> {
     
     if (operator == 'HITALO KEVEN') {
       setState(() {
-        client = null;
+        client = preferences.getString('client');
       });
       return;
     }
