@@ -33,6 +33,8 @@ class HomePageState extends State<HomePage> {
   late Directory downloadDir;
   late OneDriveIDs oneDriveIDs;
 
+  int maxPhotos = 20;
+
   String testFolder = 'testFolderTI';
   String oneDriveFolder = 'Ordens West Solar';
   String uploadfolder = 'Ordens West Solar';
@@ -167,13 +169,22 @@ class HomePageState extends State<HomePage> {
                                         ),
                                       ),
 
-                                      const SizedBox( height: 20, ),
+                                      const SizedBox( height: 10, ),
 
                                       Text(
                                         'Fotos pendentes',
                                         style: TextStyle(
                                           color: Colors.grey[900],
-                                          fontSize: 25,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+
+                                      Text(
+                                        '${pendingFileLists.sublist(0, pendingFileLists.length < maxPhotos ? pendingFileLists.length : maxPhotos).length}/$maxPhotos',
+                                        style: TextStyle(
+                                          color: Colors.grey[900],
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold
                                         ),
                                       ),
@@ -182,7 +193,8 @@ class HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(),
 
-                                for(List<File> fileList in pendingFileLists)
+                                //for(List<File> fileList in pendingFileLists)
+                                for(List<File> fileList in pendingFileLists.sublist(0, pendingFileLists.length < maxPhotos ? pendingFileLists.length : maxPhotos))
                                   SelectButton(
                                     valueNotifier: ValueNotifier(false), 
                                     title: Text(fileList.first.path.split('/').last.split('_').first),
@@ -371,21 +383,31 @@ class HomePageState extends State<HomePage> {
                                       ),
                                     ),
 
-                                    const SizedBox( height: 20, ),
+                                    const SizedBox( height: 10, ),
 
                                     Text(
                                       'Fotos enviadas',
                                       style: TextStyle(
                                         color: Colors.grey[900],
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold),
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+
+                                    Text(
+                                      'Últimas $maxPhotos',
+                                      style: TextStyle(
+                                        color: Colors.grey[900],
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold
+                                      ),
                                     ),
                                   ],
                                 )
                               ),
                               const SizedBox(),
 
-                              for(List<File> fileList in sentFileLists.sublist(0,50))
+                              for(List<File> fileList in sentFileLists.sublist(0, sentFileLists.length < maxPhotos ? sentFileLists.length : maxPhotos))
                                 ListTile(
                                   title: Text(fileList.first.path.split('/').last.split('_').first),
                                   subtitle: CarouselSlider(
@@ -631,12 +653,11 @@ class HomePageState extends State<HomePage> {
               ElevatedButton(
                 onPressed: !loading && (photoFiles.isNotEmpty && photoWidgets.isNotEmpty) && orderNumberText != null && orderNumberText!.length == 8 && (endTime != null && startTime != null)
                 ? () async {
-                  if(pendingFileLists.length < 50){
+                  if(pendingFileLists.length < maxPhotos){
                     await storeReport();
                   }else{
-                    showSnackbar(context, '');
+                    showSnackbar(context, 'Limite de $maxPhotos ordens pendentes atingido');
                   }
-                  
                 }
                 : null,
                 child: const Text('Guardar atividade')
@@ -708,6 +729,9 @@ class HomePageState extends State<HomePage> {
     List<File> pendingFiles = await getDirectoryFiles(pendingFolder, downloadDir) ?? [];
     List<File> sentFiles = await getDirectoryFiles(storageFolder, downloadDir) ?? [];
     
+    pendingFileLists.clear();
+    sentFileLists.clear();
+
     List<File> auxList = [];
 
     for(File file in pendingFiles){
@@ -742,7 +766,7 @@ class HomePageState extends State<HomePage> {
       auxList.clear();
     }
 
-    pendingFileLists.sort((a,b) => b.first.path.split('/').last.split('-').last.compareTo(a.first.path.split('/').last.split('-').last));
+    pendingFileLists.sort((a,b) => a.first.path.split('/').last.split('-').last.compareTo(b.first.path.split('/').last.split('-').last));
     sentFileLists.sort((a,b) => b.first.path.split('/').last.split('-').last.compareTo(a.first.path.split('/').last.split('-').last));
 
     if(mounted){
@@ -1005,7 +1029,7 @@ class HomePageState extends State<HomePage> {
     }else{
       sentFilesStrings = ['\n\nNão foram encontrados arquivos enviados neste dispositivo.'];
     }
-
+  
     if(deletedFiles != null && deletedFiles.isNotEmpty){
       for (File file in deletedFiles) {
         deletedFilesStrings.add(file.path.split('/').last);
@@ -1064,10 +1088,11 @@ class HomePageState extends State<HomePage> {
       return;
     }
     
-    if (operator == 'HITALO KEVEN') {
+    if (operator == 'HITALO KEVEM') {
       setState(() {
         client = preferences.getString('client');
       });
+      print('object');
       return;
     }
   }

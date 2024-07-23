@@ -314,7 +314,7 @@ Future<List<File>?> getDirectoryFiles(String folder, Directory directory, [Strin
       List<FileSystemEntity> entities = targetFolder.listSync(recursive: true, followLinks: false);
 
       // Iterate through each file and filter by extension
-      for (var entity in entities) {
+      for (var entity in entities.reversed) {
         if (entity is File) {
           if (extension != null) {
             // Check if the file has the specified extension
@@ -352,7 +352,7 @@ Future<List<String>?> getDirectoryFileNames(String folder, Directory directory, 
       List<FileSystemEntity> entities = targetFolder.listSync(recursive: true, followLinks: false);
 
       // Iterate through each file and filter by extension
-      for (var entity in entities) {
+      for (var entity in entities.reversed) {
         if (entity is File) {
           if (extension != null) {
             // Check if the file has the specified extension
@@ -365,7 +365,7 @@ Future<List<String>?> getDirectoryFileNames(String folder, Directory directory, 
           }
         }
       }
-
+      
       return fileNames;
     } else {
       log('Folder [${targetFolder.path}] does not exist');
