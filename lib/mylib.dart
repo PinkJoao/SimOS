@@ -826,18 +826,23 @@ class CameraPageState extends State<CameraPage> {
         type: FileType.image,
       );
 
+      
+
       if (result != null) {
         PlatformFile pickedFile = result.files.first;
         Uint8List fileData;
+        File tempFile;
 
         if (pickedFile.bytes != null) {
           fileData = pickedFile.bytes!;
+          tempFile = File.fromRawPath(fileData);
         } else {
-          File file = File(pickedFile.path!);
-          fileData = await file.readAsBytes();
+          tempFile = File(pickedFile.path!);
+          fileData = await tempFile.readAsBytes();
         }
 
         setState(() {
+          file = tempFile;
           fileBytes = fileData;
         });
       } else {
